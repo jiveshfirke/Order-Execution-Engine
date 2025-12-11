@@ -1,0 +1,71 @@
+{
+	"info": {
+		"_postman_id": "order-execution-engine-v1",
+		"name": "Order Execution Engine",
+		"description": "Collection to test the Order Execution Engine API and WebSocket flow.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. Execute Order (Market)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"amount\": 10,\n    \"tokenPair\": \"SOL-USDC\",\n    \"type\": \"market\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:3000/api/orders/execute",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"orders",
+						"execute"
+					]
+				},
+				"description": "Submits a market order to the engine. Returns an orderId."
+			},
+			"response": []
+		},
+		{
+			"name": "2. WebSocket Status Stream",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "ws://localhost:3000/ws/orders/:orderId",
+					"protocol": "ws",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"ws",
+						"orders",
+						":orderId"
+					],
+					"variable": [
+						{
+							"key": "orderId",
+							"value": "REPLACE_WITH_ORDER_ID",
+							"description": "The UUID returned from the POST request"
+						}
+					]
+				},
+				"description": "Connect to this endpoint using a WebSocket client (Postman supports WS now). Replace :orderId with the ID."
+			},
+			"response": []
+		}
+	]
+}
