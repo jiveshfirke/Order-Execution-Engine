@@ -13,7 +13,7 @@ const redisPub = new Redis();
 function publishEvent(orderId: string, status: string, data?: any) {
   const payload = JSON.stringify({ orderId, status, ...data });
   redisPub.publish('order-updates', payload);
-  console.log('[Event] Order ${orderId.slice(0, 5)}... -> ${status}');
+  console.log('[Event] Order ${orderId.slice(0, 5)} -> ${status}');
 }
 
 export const orderWorker = new Worker('order-queue', async (job: Job) => {
