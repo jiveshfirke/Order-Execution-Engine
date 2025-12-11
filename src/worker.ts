@@ -2,18 +2,18 @@ import { Worker, Job } from 'bullmq';
 import Redis from 'ioredis';
 import { getBestQuote, executeTrade } from './engine/dexRouter';
 
-const connection = new Redis({
-  host: 'localhost', 
-  port: 6379,
-  maxRetriesPerRequest: null 
-});
+const connection = process.env.REDIS_URL 
+  ? new Redis(process.env.REDIS_URL, { maxRetriesPerRequest: null })
+  : new Redis({ host: 'localhost', port: 6379, maxRetriesPerRequest: null });
 
-const redisPub = new Redis(); 
+const redisPub = process.env.REDIS_URL 
+  ? new Redis(process.env.REDIS_URL)
+  : new Redis();
 
 function publishEvent(orderId: string, status: string, data?: any) {
   const payload = JSON.stringify({ orderId, status, ...data });
   redisPub.publish('order-updates', payload);
-  console.log('[Event] Order ${orderId.slice(0, 5)} -> ${status}');
+  console.log(`[Event] Order ${orderId.slice(0, 5)}... -> ${status}`);
 }
 
 export const orderWorker = new Worker('order-queue', async (job: Job) => {
@@ -38,7 +38,7 @@ export const orderWorker = new Worker('order-queue', async (job: Job) => {
 
   } catch (error: any) {
     publishEvent(orderId, 'failed', { reason: error.message });
-    console.error('Order ${orderId} failed:', error.message);
+    console.error(`Order ${orderId} failed:`, error.message);
     throw error;
   }
 }, { 
@@ -50,4 +50,4 @@ export const orderWorker = new Worker('order-queue', async (job: Job) => {
   }
 });
 
-console.log("[Worker] Listening for orders");
+console.log("[Worker] Listening for orders...");
