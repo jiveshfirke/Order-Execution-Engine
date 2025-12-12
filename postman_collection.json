@@ -58,12 +58,12 @@
 					"variable": [
 						{
 							"key": "orderId",
-							"value": "REPLACE_WITH_ORDER_ID",
+							"value": "REPLACE_WITH_ORDER_ID_FROM_STEP_1",
 							"description": "The UUID returned from the POST request"
 						}
 					]
 				},
-				"description": "Connect to this endpoint using a WebSocket client (Postman supports WS now). Replace :orderId with the ID."
+				"description": "Connect to this endpoint using a WebSocket client (Postman supports WS now). Replace :orderId with the ID you got from Step 1."
 			},
 			"response": []
 		}

@@ -1,3 +1,4 @@
+// src/worker.ts
 import { Worker, Job } from 'bullmq';
 import Redis from 'ioredis';
 import { getBestQuote, executeTrade } from './engine/dexRouter';
@@ -12,15 +13,18 @@ const redisPub = process.env.REDIS_URL
 
 function publishEvent(orderId: string, status: string, data?: any) {
   const payload = JSON.stringify({ orderId, status, ...data });
+
   redisPub.publish('order-updates', payload);
   console.log(`[Event] Order ${orderId.slice(0, 5)}... -> ${status}`);
 }
+
 
 export const orderWorker = new Worker('order-queue', async (job: Job) => {
   const { orderId, amount, tokenPair } = job.data;
 
   try {
     publishEvent(orderId, 'pending');
+
     publishEvent(orderId, 'routing');
     const quote = await getBestQuote(tokenPair, amount);
     
@@ -39,13 +43,13 @@ export const orderWorker = new Worker('order-queue', async (job: Job) => {
   } catch (error: any) {
     publishEvent(orderId, 'failed', { reason: error.message });
     console.error(`Order ${orderId} failed:`, error.message);
-    throw error;
+    throw error; 
   }
 }, { 
   connection,
   concurrency: 10, 
   limiter: {
-    max: 100,
+    max: 100,      
     duration: 60000
   }
 });

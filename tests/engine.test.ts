@@ -1,3 +1,4 @@
+// tests/engine.test.ts
 import request from 'supertest';
 import { getBestQuote } from '../src/engine/dexRouter';
 
@@ -36,7 +37,7 @@ describe('2. API Endpoints (Integration Tests)', () => {
   });
 
   test('should handle missing fields gracefully', async () => {
-    const response = await request(API_URL)
+    const response = await request(API_URL) 
       .post('/api/orders/execute')
       .send({});
       
@@ -52,7 +53,7 @@ describe('3. WebSocket & Queue (Lifecycle Tests)', () => {
     const res = await request(API_URL).post('/api/orders/execute').send({ amount: 5, type: 'market' });
     const orderId = res.body.orderId;
 
-    const ws = new WebSocket('ws://localhost:3000/ws/orders/${orderId}');
+    const ws = new WebSocket(`ws://localhost:3000/ws/orders/${orderId}`);
     
     const isOpen = await new Promise((resolve) => {
       ws.on('open', () => resolve(true));
@@ -62,7 +63,7 @@ describe('3. WebSocket & Queue (Lifecycle Tests)', () => {
     expect(isOpen).toBe(true);
     ws.close();
   });
-  
+
   test('Server should have an active worker', () => {
      expect(true).toBe(true); 
   });
@@ -71,7 +72,7 @@ describe('3. WebSocket & Queue (Lifecycle Tests)', () => {
 describe('4. Failure Handling', () => {
   test('Router should handle 0 amount safely', async () => {
     const quote = await getBestQuote('SOL-USDC', 0);
-    expect(quote.price).toBeGreaterThan(0);
+    expect(quote.price).toBeGreaterThan(0); 
   });
   
   test('Token Pair string should be preserved', async () => {

@@ -16,7 +16,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>🚀 Order Execution Engine</h1>
+        <h1>Order Execution Engine</h1>
         <p>System Status: <span id="ws-status" style="color:red">Disconnected</span></p>
         
         <div style="margin: 20px 0;">
@@ -47,6 +47,7 @@
             log(`Submitting order for ${amount} ${pair}...`, 'highlight');
 
             try {
+                // 1. POST Request
                 const res = await fetch('/api/orders/execute', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -55,26 +56,26 @@
                 
                 const data = await res.json();
                 if(data.orderId) {
-                    log('Order Queued! ID: ${data.orderId}', 'highlight');
+                    log(` Order Queued! ID: ${data.orderId}`, 'highlight');
                     connectWebSocket(data.orderId);
                 }
             } catch (err) {
-                log('Error: ${err.message}', 'error');
+                log(` Error: ${err.message}`, 'error');
             }
         }
 
         function connectWebSocket(orderId) {
             const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-            const wsUrl = '${protocol}//${window.location.host}/ws/orders/${orderId}';
+            const wsUrl = `${protocol}//${window.location.host}/ws/orders/${orderId}`;
             const ws = new WebSocket(wsUrl);
 
             ws.onopen = () => { wsStatus.innerText = 'Connected'; wsStatus.style.color = 'lime'; };
             ws.onmessage = (event) => {
                 const data = JSON.parse(event.data);
-                log("STATUS UPDATE: ${data.status.toUpperCase()} ${data.data ? JSON.stringify(data.data) : ''}");
+                log(` STATUS UPDATE: ${data.status.toUpperCase()} ${data.data ? JSON.stringify(data.data) : ''}`);
                 
-                if(data.status === 'confirmed') log('TRADE SETTLED SUCCESSFULLY', 'highlight');
-                if(data.status === 'failed') log('💀 TRADE FAILED (Will Retry)', 'highlight');
+                if(data.status === 'confirmed') log(' TRADE SETTLED SUCCESSFULLY', 'highlight');
+                if(data.status === 'failed') log(' TRADE FAILED (Will Retry)', 'highlight');
             };
             ws.onclose = () => { wsStatus.innerText = 'Disconnected'; wsStatus.style.color = 'red'; };
         }
